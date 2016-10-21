@@ -42,15 +42,15 @@ sys_waitpid(){
   return 0;
 }
 
-void
+int
 sys_setnewpriority(void){
   int priority;
   
   argint(0, &priority);
   // argptr(0,(char**)&priority,4);
   
-  return setnewpriority(priority);
-  
+  setnewpriority(priority);
+  return 0;
   // int priority;
   // int old_priority=proc->priority;
   
