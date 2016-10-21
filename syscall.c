@@ -93,7 +93,7 @@ extern int sys_open(void);
 extern int sys_pipe(void);
 extern int sys_read(void);
 extern int sys_sbrk(void);
-extern int set_newpriority(int);
+extern int sys_setnewpriority(int);
 extern int sys_sleep(void);
 extern int sys_unlink(void);
 extern int sys_wait(void);
@@ -124,7 +124,7 @@ static int (*syscalls[])(void) = {
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
 [SYS_waitpid] sys_waitpid,
-[SYS_set_newpriority] sys_set_newpriority,
+[SYS_setnewpriority] sys_setnewpriority,
 };
 
 void

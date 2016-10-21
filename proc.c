@@ -402,7 +402,7 @@ scheduler(void)
   }
 }
 
-int set_newpriority(int new_priority){
+int setnewpriority(int new_priority){
   acquire(&ptable.lock);  
   proc->priority = new_priority;
   proc->exit_stat = RUNNABLE;
