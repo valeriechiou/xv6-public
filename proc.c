@@ -406,7 +406,7 @@ scheduler(void)
 
 void setnewpriority(int new_priority){
   
-  if(priority < 0 || priority > 63)
+  if(new_priority < 0 || new_priority > 63)
     return; 
   
   acquire(&ptable.lock); 
