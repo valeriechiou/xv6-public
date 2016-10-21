@@ -38,6 +38,9 @@ int main(int argc, char ** argv){
 	}
 	//printf("child");
 	printf(1,"%d\n",	++i);
+	
+	exit(0);
+	return 0;
 }
 
 
