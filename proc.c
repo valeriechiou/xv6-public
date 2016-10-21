@@ -71,6 +71,7 @@ found:
   p->context = (struct context*)sp;
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
+  p->priority = 30; //default priority number
 
   return p;
 }
@@ -352,17 +353,37 @@ void
 scheduler(void)
 {
   struct proc *p;
-
+  int priority = 0;
+  
   for(;;){
     // Enable interrupts on this processor.
     sti();
-
+    
+    //Currently working process
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+    {
+      if(p->state != RUNNABLE) continue;
+      
+      if(priority < p->priority) 
+      {
+        priority = p->priority;
+      }
+    }
+    
+    
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(priority < p->priority) 
+      {
+        priority = p->priority;
+      }
       if(p->state != RUNNABLE)
         continue;
-
+      if(p->priority < priority)
+        continue;
+      
+      
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
@@ -379,6 +400,14 @@ scheduler(void)
     release(&ptable.lock);
 
   }
+}
+
+int set_newpriority(int new_priority){
+  acquire(&ptable.lock);  
+  proc->priority = new_priority;
+  proc->status = RUNNABLE;
+  release(&ptable.lock);
+  return -1;
 }
 
 // Enter scheduler.  Must hold only ptable.lock

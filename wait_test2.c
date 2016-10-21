@@ -18,14 +18,14 @@ int main(int argc, char ** argv){
 	
 	if(	pid1	!=		0)	{
 		
-		//printf(1, "parent");
+		printf(1, "parent");
 		printf(1,"%d\n",	++i);
 		
 		pid2	=	fork();
 		
 		if(pid2	!=	0)	{
 			waitpid(pid1,	&status, 0);
-			//printf(1, "parentparent");
+			printf(1, "parentparent");
 			printf(1,"%d\n",	++i);
 			
 			waitpid(pid2, &status,	0);
@@ -33,15 +33,12 @@ int main(int argc, char ** argv){
 			
 			exit(0);
 		}
-		//printf(1, "parentchild");
+		printf(1, "parentchild");
 		printf(1,"%d\n",i);
 	}
-	//printf(1, "child");
+	printf(1, "child");
 	printf(1,"%d\n",	++i);
 	
 	exit(0);
 	return 0;
 }
-
-
-

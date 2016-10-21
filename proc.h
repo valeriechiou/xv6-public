@@ -66,7 +66,7 @@ struct proc {
   int exit_stat;		// New exit status
   // struct proc* procwaitlist[20]; // Process waitlist
   // int procwaitlist_size;           // size of process waitlist
-  int zombie_pid;              // process to be turned into ZOMBIE
+  int priority;              // priority number
   int waitpid_vec[50];
   int vec_size;
 };
