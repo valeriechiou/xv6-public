@@ -407,7 +407,7 @@ int setnewpriority(int new_priority){
   proc->priority = new_priority;
   proc->state = RUNNABLE;
   release(&ptable.lock);
-  return -1;
+  return new_priority;
 }
 
 // Enter scheduler.  Must hold only ptable.lock
