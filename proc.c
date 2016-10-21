@@ -402,13 +402,13 @@ scheduler(void)
   }
 }
 
-int setnewpriority(int new_priority){
-  acquire(&ptable.lock);  
-  proc->priority = new_priority;
-  proc->state = RUNNABLE;
-  release(&ptable.lock);
-  return new_priority;
-}
+// int setnewpriority(int new_priority){
+//   acquire(&ptable.lock);  
+//   proc->priority = new_priority;
+//   proc->state = RUNNABLE;
+//   release(&ptable.lock);
+//   return new_priority;
+// }
 
 // Enter scheduler.  Must hold only ptable.lock
 // and have changed proc->state. Saves and restores
