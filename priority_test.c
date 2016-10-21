@@ -8,7 +8,7 @@
 #include "traps.h"
 #include "memlayout.h"
 
-int main(){
+int main(int argc, char ** argv){
     int i;
     int begin = getpid();
     int pid = fork();
