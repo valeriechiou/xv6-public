@@ -42,7 +42,7 @@ sys_waitpid(){
   return 0;
 }
 
-int
+void
 sys_setnewpriority(void){
   // int priority;
   

@@ -93,7 +93,7 @@ extern int sys_open(void);
 extern int sys_pipe(void);
 extern int sys_read(void);
 extern int sys_sbrk(void);
-extern int sys_setnewpriority(void);
+extern void sys_setnewpriority(void);
 extern int sys_sleep(void);
 extern int sys_unlink(void);
 extern int sys_wait(void);
