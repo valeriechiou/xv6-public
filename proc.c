@@ -263,7 +263,7 @@ waitpid(int pid, int* status, int options){
       if( p->vec_size < sizeof(p->waitpid_vec)) { 
       	p->waitpid_vec[p->vec_size] = p->pid;
       	p->vec_size ++;
-	}
+	     }
       
       if(p->state == ZOMBIE){
         // Found one.
@@ -280,12 +280,8 @@ waitpid(int pid, int* status, int options){
         p->state = UNUSED;
         if(status){*status = p->exit_stat;} //CHANGE
         release(&ptable.lock);
-	return temp_pid;
+	       return temp_pid;
       }
-      
-      	p->waitpid_vec[p->vec_size] = p->pid;
-      	p->vec_size ++;
-	break;
       
     }
     // No point waiting if we don't have any children.
@@ -328,9 +324,9 @@ wait(int *status)
         p->killed = 0;
         p->state = UNUSED;
         if(status){*status = p->exit_stat;} //CHANGE
-	release(&ptable.lock);       
-	return pid;
-      }
+	       release(&ptable.lock);       
+	       return pid;
+        } 
     }
     // No point waiting if we don't have any children.
     if(!havekids || proc->killed){
