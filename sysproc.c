@@ -44,23 +44,21 @@ sys_waitpid(){
 
 void
 sys_setnewpriority(void){
-  // int priority;
-  
-  // //argint(0, &priority);
-  // argptr(0,(char**)&priority,4);
-  // if(priority < 0 || priority > 63)
-  //   return 0;
-  
-  // return setnewpriority(priority);
-  
   int priority;
-  int old_priority=proc->priority;
   
-  if(argint(0,&priority)<0){return;}
-  if(priority<0||priority>63){return;}
-  proc->priority = priority;
+  argint(0, &priority);
+  // argptr(0,(char**)&priority,4);
   
-  if(priority < old_priority){yield();}
+  return setnewpriority(priority);
+  
+  // int priority;
+  // int old_priority=proc->priority;
+  
+  // if(argint(0,&priority)<0){return;}
+  // if(priority<0||priority>63){return;}
+  // proc->priority = priority;
+  
+  // if(priority < old_priority){yield();}
   
 }
 

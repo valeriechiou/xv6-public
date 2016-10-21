@@ -359,6 +359,8 @@ scheduler(void)
     // Enable interrupts on this processor.
     sti();
     
+    acquire(&ptable.lock);
+
     //Currently working process
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     {
@@ -372,7 +374,7 @@ scheduler(void)
     
     
     // Loop over process table looking for process to run.
-    acquire(&ptable.lock);
+        
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(priority < p->priority) 
       {
@@ -402,13 +404,19 @@ scheduler(void)
   }
 }
 
-// int setnewpriority(int new_priority){
-//   acquire(&ptable.lock);  
-//   proc->priority = new_priority;
-//   proc->state = RUNNABLE;
-//   release(&ptable.lock);
-//   return new_priority;
-// }
+void setnewpriority(int new_priority){
+  
+  if(priority < 0 || priority > 63)
+    return; 
+  
+  acquire(&ptable.lock); 
+   
+  proc->priority = new_priority;
+  proc->state = RUNNABLE;
+  
+  release(&ptable.lock);
+  return;
+}
 
 // Enter scheduler.  Must hold only ptable.lock
 // and have changed proc->state. Saves and restores
