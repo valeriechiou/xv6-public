@@ -405,7 +405,7 @@ scheduler(void)
 int set_newpriority(int new_priority){
   acquire(&ptable.lock);  
   proc->priority = new_priority;
-  proc->status = RUNNABLE;
+  proc->exit_stat = RUNNABLE;
   release(&ptable.lock);
   return -1;
 }
