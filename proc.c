@@ -6,7 +6,6 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
-
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
@@ -184,11 +183,13 @@ fork(void)
 // An exited process remains in the zombie state
 // until its parent calls wait() to find out it exited.
 void
-exit(void)
+exit(int status)
 {
   struct proc *p;
   int fd;
-
+  
+  proc->exit_stat = status;
+  
   if(proc == initproc)
     panic("init exiting");
 
@@ -199,6 +200,8 @@ exit(void)
       proc->ofile[fd] = 0;
     }
   }
+  
+  
 
   begin_op();
   iput(proc->cwd);
@@ -210,6 +213,23 @@ exit(void)
   // Parent might be sleeping in wait().
   wakeup1(proc->parent);
 
+  // while(proc->procwaitlist_size > 0)
+  // {
+  //   proc->procwaitlist_size--;
+  //   wakeup1(proc->procwaitlist[proc->procwaitlist_size]);
+  // }
+  int x;
+ 	
+  if ( proc->vec_size != 0 ) {
+	for ( x = 0; x < proc->vec_size; x++) {
+	
+  		for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    			if (p->pid == proc->waitpid_vec[x]) {
+      				wakeup1(p);
+    			}
+  		}
+	}
+  }
   // Pass abandoned children to init.
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->parent == proc){
@@ -225,10 +245,65 @@ exit(void)
   panic("zombie exit");
 }
 
+int
+waitpid(int pid, int* status, int options){
+  struct proc *p;
+  int havekids, temp_pid;
+
+  acquire(&ptable.lock);
+  for(;;){
+    // Scan through table looking for exited children.
+    havekids = 0;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->pid != pid)
+        continue;
+      havekids = 1;
+
+
+      if( p->vec_size < sizeof(p->waitpid_vec)) { 
+      	p->waitpid_vec[p->vec_size] = p->pid;
+      	p->vec_size ++;
+	}
+      
+      if(p->state == ZOMBIE){
+        // Found one.
+        
+        temp_pid = p->pid;
+        // pid = p->pid;
+        kfree(p->kstack);
+        p->kstack = 0;
+        freevm(p->pgdir);
+        p->pid = 0;
+        p->parent = 0;
+        p->name[0] = 0;
+        p->killed = 0;
+        p->state = UNUSED;
+        if(status){*status = p->exit_stat;} //CHANGE
+        release(&ptable.lock);
+	return temp_pid;
+      }
+      
+      	p->waitpid_vec[p->vec_size] = p->pid;
+      	p->vec_size ++;
+	break;
+      
+    }
+    // No point waiting if we don't have any children.
+    if(!havekids || proc->killed){
+      release(&ptable.lock);
+      if(status){*status = -1;}
+      return -1;
+    }
+    
+    // Wait for children to exit.  (See wakeup1 call in proc_exit.)
+    sleep(proc, &ptable.lock);  //DOC: wait-sleep
+  }
+}
+
 // Wait for a child process to exit and return its pid.
 // Return -1 if this process has no children.
 int
-wait(void)
+wait(int *status)
 {
   struct proc *p;
   int havekids, pid;
@@ -252,17 +327,18 @@ wait(void)
         p->name[0] = 0;
         p->killed = 0;
         p->state = UNUSED;
-        release(&ptable.lock);
-        return pid;
+        if(status){*status = p->exit_stat;} //CHANGE
+	release(&ptable.lock);       
+	return pid;
       }
     }
-
     // No point waiting if we don't have any children.
     if(!havekids || proc->killed){
       release(&ptable.lock);
+      if(status){*status = -1;}
       return -1;
     }
-
+    
     // Wait for children to exit.  (See wakeup1 call in proc_exit.)
     sleep(proc, &ptable.lock);  //DOC: wait-sleep
   }
@@ -405,6 +481,8 @@ sleep(void *chan, struct spinlock *lk)
 //PAGEBREAK!
 // Wake up all processes sleeping on chan.
 // The ptable lock must be held.
+
+
 static void
 wakeup1(void *chan)
 {
@@ -483,3 +561,4 @@ procdump(void)
     cprintf("\n");
   }
 }
+
