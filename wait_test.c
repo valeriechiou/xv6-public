@@ -9,7 +9,8 @@
 #include "memlayout.h"
 
 int main(int argc, char ** argv){
-	pid_t	pid1=0,	pid2=0;
+	int	pid1=0
+	int	pid2=0;
 	int	i=3;
 	
 	pid1=fork();
@@ -17,25 +18,25 @@ int main(int argc, char ** argv){
 	if(	pid1	!=		0)	{
 		
 		//printf("parent");
-		printf("%d\n",	++i);
+		printf(1,"%d\n",	++i);
 		
 		pid2	=	fork();
 		
 		if(pid2	!=	0)	{
 			waitpid(pid1,	NULL, 0);
 			//printf("parentparent");
-			printf("%d\n",	++i);
+			printf(1,"%d\n",	++i);
 			
 			waitpid(pid2,NULL,	0);
-			printf("%d\n",	++i);
+			printf(1,"%d\n",	++i);
 			
 			exit(0);
 		}
 		//printf("parentchild");
-		printf("%d\n",i);
+		printf(1,"%d\n",i);
 	}
 	//printf("child");
-	printf("%d\n",	++i);
+	printf(1,"%d\n",	++i);
 }
 
 
