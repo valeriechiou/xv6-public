@@ -49,10 +49,9 @@ sys_setnewpriority(void){
   argint(0, &priority);
   
   if(priority < 0 || priority > 63)
-    return;
+    return 0;
   
   return setnewpriority(priority);
-  return 0;
 }
 
 int
