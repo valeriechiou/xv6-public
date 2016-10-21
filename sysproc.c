@@ -46,8 +46,8 @@ int
 sys_setnewpriority(void){
   int priority;
   
-  argint(0, &priority);
-  
+  //argint(0, &priority);
+  argptr(0,(char**)&priority,4);
   if(priority < 0 || priority > 63)
     return 0;
   
