@@ -24,7 +24,7 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int waitpid(int pid, int *status, int options);
-void setnewpriority(int new_priority);
+int setnewpriority(int new_priority);
 //void setnewpriority(int);
 
 // ulib.c

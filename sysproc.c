@@ -44,11 +44,10 @@ sys_waitpid(){
 
 int
 sys_setnewpriority(void){
-  int priority;
   
+  int priority;
   argint(0, &priority);
   // argptr(0,(char**)&priority,4);
-  
   setnewpriority(priority);
   return 0;
   // int priority;

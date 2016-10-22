@@ -72,7 +72,7 @@ found:
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
   p->priority = 30; //default priority number
-
+  
   return p;
 }
 
@@ -222,15 +222,17 @@ exit(int status)
   int x;
  	
   if ( proc->vec_size != 0 ) {
-	for ( x = 0; x < proc->vec_size; x++) {
-	
-  		for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-    			if (p->pid == proc->waitpid_vec[x]) {
-      				wakeup1(p);
-    			}
-  		}
-	}
+  	for ( x = 0; x < proc->vec_size; x++) {
+  	
+    		for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+          
+      			if (p->pid == proc->waitpid_vec[x]) {
+        				wakeup1(p);
+      			}
+    		}
+  	}
   }
+  
   // Pass abandoned children to init.
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->parent == proc){
@@ -258,13 +260,14 @@ waitpid(int pid, int* status, int options){
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->pid != pid)
         continue;
+      
       havekids = 1;
+      
+      if( p->vec_size < sizeof(p->waitpid_vec) ) { 
+          p->waitpid_vec[p->vec_size] = p->pid;
+          p->vec_size ++;
 
-
-      if( p->vec_size < sizeof(p->waitpid_vec)) { 
-      	p->waitpid_vec[p->vec_size] = p->pid;
-      	p->vec_size ++;
-	     }
+       }
       
       if(p->state == ZOMBIE){
         // Found one.
@@ -283,6 +286,7 @@ waitpid(int pid, int* status, int options){
         release(&ptable.lock);
 	       return temp_pid;
       }
+      
       
     }
     // No point waiting if we don't have any children.
@@ -353,37 +357,39 @@ void
 scheduler(void)
 {
   struct proc *p;
-  int priority = 0;
+  //int priority = 0;
   
   for(;;){
     // Enable interrupts on this processor.
     sti();
-    
     acquire(&ptable.lock);
 
-    //Currently working process
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
-    {
-      if(p->state != RUNNABLE) continue;
+    // for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+    // {
+    //   if(p->state != RUNNABLE) continue;
       
-      if(priority < p->priority) 
-      {
-        priority = p->priority;
-      }
-    }
+    //   if(priority < p->priority) 
+    //   {
+    //     priority = p->priority;
+    //   }
+    // }
+
+    //Currently working process
     
     
     // Loop over process table looking for process to run.
         
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(priority < p->priority) 
-      {
-        priority = p->priority;
-      }
       if(p->state != RUNNABLE)
         continue;
-      if(p->priority < priority)
-        continue;
+      
+    //   if(priority < p->priority) 
+    //   {
+    //     //priority = p->priority;
+    //     continue;
+    //   }
+    //    if(p->priority < priority)
+    //     continue;
       
       
       // Switch to chosen process.  It is the process's job
@@ -404,18 +410,18 @@ scheduler(void)
   }
 }
 
-void setnewpriority(int new_priority){
-  
+int setnewpriority(int new_priority){
+
   if(new_priority < 0 || new_priority > 63)
-    return; 
+    return -1; 
   
   acquire(&ptable.lock); 
-   
+
   proc->priority = new_priority;
   proc->state = RUNNABLE;
   
   release(&ptable.lock);
-  return;
+  return new_priority;
 }
 
 // Enter scheduler.  Must hold only ptable.lock
