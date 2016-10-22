@@ -220,7 +220,7 @@ exit(int status)
   //   wakeup1(proc->procwaitlist[proc->procwaitlist_size]);
   // }
   int x;
- 	cprintf(" exiting: [%d]\n", proc->pid);
+ 	//cprintf(" exiting: [%d]\n", proc->pid);
   
   if ( proc->vec_size != 0 ) {
   	for ( x = 0; x < proc->vec_size; x++) {
@@ -228,13 +228,14 @@ exit(int status)
     		for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
           
       			if (p->pid == proc->waitpid_vec[x]) {
+              
                 cprintf(" wait complete: [%d]\n", p->pid);
         				wakeup1(p);
       			}
     		}
   	}
   }
-  cprintf(" exiting2: [%d]\n", proc->pid);
+  //cprintf(" exiting2: [%d]\n", proc->pid);
   // Pass abandoned children to init.
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->parent == proc){
@@ -266,8 +267,11 @@ waitpid(int pid, int* status, int options){
       havekids = 1;
       
       if( p->vec_size < sizeof(p->waitpid_vec) ) { 
-          p->waitpid_vec[p->vec_size] = p->pid;
+          p->waitpid_vec[p->vec_size] = proc->pid;
           p->vec_size ++;
+          
+          //cprintf(" adding [%d] to wait for[%d]\n", proc->pid, p->pid);
+
 
        }
       

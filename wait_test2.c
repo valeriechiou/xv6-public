@@ -34,7 +34,7 @@ int main(int argc, char ** argv){
 		i++;
 		
 		waitpid(pid1, &status, 0);
-		printf(1,"[%d]\n",	x);
+		printf(1,"finally [%d]\n",	x);
 		
 		
 	}
