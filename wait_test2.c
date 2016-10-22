@@ -12,6 +12,7 @@ int main(int argc, char ** argv){
 	int	pid1=0;
 	int	i=0;
 	int	pid2=0;
+	int x=0;
 	//int	pid3=0;
 	
 	int status;
@@ -27,13 +28,13 @@ int main(int argc, char ** argv){
 		pid2 =fork();
 		pid2 =fork();
 		pid2 =fork();
-		pid2 =fork();
-		pid2 =fork();
 		
+		x = getpid();
+		printf(1,"[%d] waiting for [%d]\n", x , pid1	);
 		i++;
 		
 		waitpid(pid1, &status, 0);
-		printf(1,"[%d]\n",	i);
+		printf(1,"[%d]\n",	x);
 		
 		
 	}
@@ -42,7 +43,8 @@ int main(int argc, char ** argv){
 		//printf(1, "child");
 		for ( i = 0; i < 300000; i++) {}
 		sleep(1000);
-		printf(1,"first child[%d]\n",	1);
+		x = getpid();
+		printf(1,"first child[%d]\n", x	);
 		
 	}
 	
