@@ -69,15 +69,9 @@ found:
   p->context = (struct context*)sp;
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
-<<<<<<< HEAD
 
   p->priority = 50; //default priority value
 
-=======
-  
-  p->priority = 0; //default priority number
-  
->>>>>>> a145bdd321a291f8a23bd5dbc95fd540b12d0032
   return p;
 }
 
@@ -202,7 +196,6 @@ exit(int status)
   // Parent might be sleeping in wait().
   wakeup1(proc->parent);
 
-<<<<<<< HEAD
 
   int x;
   //cprintf(" I: [%d] am the child of [%d]\n", proc->pid,proc->parent->pid);
@@ -252,29 +245,6 @@ exit(int status)
                 //     }
                 //   }
                 // cprintf(" \n ");
-=======
-  // while(proc->procwaitlist_size > 0)
-  // {
-  //   proc->procwaitlist_size--;
-  //   wakeup1(proc->procwaitlist[proc->procwaitlist_size]);
-  // }
-  //~ int x;
- 	//~ //cprintf(" exiting: [%d]\n", proc->pid);
-  //~ 
-  //~ if ( proc->vec_size != 0 ) {
-  	//~ for ( x = 0; x < proc->vec_size; x++) {
-  	//~ 
-    		//~ for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-          //~ 
-      			//~ if (p->pid == proc->waitpid_vec[x]) {
-              //~ 
-                //~ cprintf(" wait complete: [%d]\n", p->pid);
-        				//~ wakeup1(p);
-      			//~ }
-    		//~ }
-  	//~ }
-  //~ }
->>>>>>> a145bdd321a291f8a23bd5dbc95fd540b12d0032
   //cprintf(" exiting2: [%d]\n", proc->pid);
   // Pass abandoned children to init.
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
@@ -408,11 +378,7 @@ void
 scheduler(void)
 {
   struct proc *p;
-<<<<<<< HEAD
   int priority = 0;
-=======
-  int max_priority = 0;
->>>>>>> a145bdd321a291f8a23bd5dbc95fd540b12d0032
   
   for(;;) {
     
@@ -428,7 +394,6 @@ scheduler(void)
     
     acquire(&ptable.lock);
 
-<<<<<<< HEAD
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     {
             
@@ -453,16 +418,6 @@ scheduler(void)
       // if(p->state != RUNNABLE) continue;
     }
 
-=======
-     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
-     {
-       if(p->state != RUNNABLE) continue;
-      
-       if(max_priority < p->priority) {
-         max_priority = p->priority;
-       }
-     }
->>>>>>> a145bdd321a291f8a23bd5dbc95fd540b12d0032
 
     //cprintf(" this max priority for this round it [%d]\n\n", priority);
     //Currently working process
@@ -474,7 +429,6 @@ scheduler(void)
       if(p->state != RUNNABLE)
         continue;
       
-<<<<<<< HEAD
       if(priority < p->priority) 
       {
         priority = p->priority;
@@ -497,10 +451,6 @@ scheduler(void)
       
       
       
-=======
-		if(p->priority < max_priority) continue;
-		if(p->priority > max_priority) break;
->>>>>>> a145bdd321a291f8a23bd5dbc95fd540b12d0032
       
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
@@ -548,10 +498,6 @@ int setnewpriority(int new_priority){
   
   
   return new_priority;
-}
-
-int getpriority(void){
-	return (int)proc->priority;
 }
 
 // Enter scheduler.  Must hold only ptable.lock
