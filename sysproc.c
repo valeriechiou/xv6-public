@@ -47,12 +47,12 @@ sys_setnewpriority(void){
   
   int priority;
   argint(0, &priority);
-  // argptr(0,(char**)&priority,4);
+  cprintf("sys_setnewpriority: %d\n",priority);
   setnewpriority(priority);
   return priority;
   // int priority;
   // int old_priority=proc->priority;
-  
+  // argptr(0,(char**)&priority,4);
   // if(argint(0,&priority)<0){return;}
   // if(priority<0||priority>63){return;}
   // proc->priority = priority;
@@ -82,6 +82,11 @@ int
 sys_getpri(void)
 {
   return proc->priority;
+}
+
+int
+sys_getpriority(void){
+	return getpriority();
 }
 
 int

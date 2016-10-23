@@ -22,4 +22,8 @@
 #define SYS_close  21
 #define SYS_waitpid 22
 #define SYS_setnewpriority 23
+<<<<<<< HEAD
 #define SYS_getpri 24
+=======
+#define SYS_getpriority 24
+>>>>>>> a145bdd321a291f8a23bd5dbc95fd540b12d0032
