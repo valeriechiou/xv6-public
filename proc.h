@@ -62,11 +62,11 @@ struct proc {
   int killed;                  // If non-zero, have been killed
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
-  char name[16];               // Process name (debugging)
-  int exit_stat;			   // New exit status
-  int procarr[50];		       // waitpid process array
-  int procarr_size;	           // waitpid procarr size
-  int priority;                // Priority number
+  char name[16];				// Process name (debugging)
+  int exit_stat;				// New exit status
+  int procarr[50];				// waitpid process array
+  int procarr_size;				// waitpid procarr size
+  int priority;					// Priority number
 
 };
 

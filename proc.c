@@ -184,9 +184,6 @@ exit(int status)
     }
   }
   
-  
-
-
   iput(proc->cwd);
   proc->cwd = 0;
   acquire(&ptable.lock);
@@ -345,8 +342,7 @@ scheduler(void)
     sti();
     acquire(&ptable.lock);
 
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
-    {
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != RUNNABLE) 
 		continue;
       
@@ -355,13 +351,11 @@ scheduler(void)
       
     }
 
-
     //Currently working process
     
     // Loop over process table looking for process to run.
         
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      
       if(p->state != RUNNABLE)
         continue;
       
@@ -395,7 +389,6 @@ scheduler(void)
 }
 
 int change_priority(int new_priority){
-  
   acquire(&ptable.lock); 
   
   if(new_priority < 0 || new_priority > 63)
@@ -405,7 +398,7 @@ int change_priority(int new_priority){
   proc->state = RUNNABLE;
   
   release(&ptable.lock);  
-  
+
   return new_priority;
 }
 
