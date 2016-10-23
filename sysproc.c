@@ -43,22 +43,11 @@ sys_waitpid(){
 }
 
 int
-sys_setnewpriority(void){
-  
+sys_change_priority(void){
   int priority;
   argint(0, &priority);
-  // argptr(0,(char**)&priority,4);
-  setnewpriority(priority);
+  change_priority(priority);
   return priority;
-  // int priority;
-  // int old_priority=proc->priority;
-  
-  // if(argint(0,&priority)<0){return;}
-  // if(priority<0||priority>63){return;}
-  // proc->priority = priority;
-  
-  // if(priority < old_priority){yield();}
-  
 }
 
 int
@@ -79,7 +68,7 @@ sys_getpid(void)
 
 
 int
-sys_getpri(void)
+sys_getpriority(void)
 {
   return proc->priority;
 }

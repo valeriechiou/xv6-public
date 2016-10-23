@@ -20,13 +20,12 @@ int mkdir(char*);
 int chdir(char*);
 int dup(int);
 int getpid(void);
-int getpri(void);
+int getpriority(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int waitpid(int pid, int *status, int options);
-int setnewpriority(int new_priority);
-//void setnewpriority(int);
+int change_priority(int new_priority);
 
 // ulib.c
 int stat(char*, struct stat*);

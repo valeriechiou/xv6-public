@@ -63,12 +63,11 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
-  int exit_stat;		// New exit status
-  // struct proc* procwaitlist[20]; // Process waitlist
-  // int procwaitlist_size;           // size of process waitlist
-  int priority;              // priority number
-  int waitpid_vec[50];
-  int vec_size;
+  int exit_stat;			   // New exit status
+  int procarr[50];		       // waitpid process array
+  int procarr_size;	           // waitpid procarr size
+  int priority;                // Priority number
+
 };
 
 // Process memory is laid out contiguously, low addresses first:
