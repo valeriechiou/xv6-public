@@ -364,7 +364,7 @@ void
 scheduler(void)
 {
   struct proc *p;
-  int priority = 0;
+  int max_priority = 0;
   
   for(;;){
     // Enable interrupts on this processor.
@@ -375,8 +375,8 @@ scheduler(void)
      {
        if(p->state != RUNNABLE) continue;
       
-       if(priority < p->priority) {
-         priority = p->priority;
+       if(max_priority < p->priority) {
+         max_priority = p->priority;
        }
      }
 
@@ -388,8 +388,8 @@ scheduler(void)
       if(p->state != RUNNABLE)
         continue;
       
-		if(p->priority < priority) continue;
-		if(p->priority > priority) break;
+		if(p->priority < max_priority) continue;
+		if(p->priority > max_priority) break;
       
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
