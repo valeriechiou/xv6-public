@@ -49,7 +49,7 @@ sys_setnewpriority(void){
   argint(0, &priority);
   // argptr(0,(char**)&priority,4);
   setnewpriority(priority);
-  return 0;
+  return priority;
   // int priority;
   // int old_priority=proc->priority;
   
@@ -75,6 +75,13 @@ int
 sys_getpid(void)
 {
   return proc->pid;
+}
+
+
+int
+sys_getpri(void)
+{
+  return proc->priority;
 }
 
 int
