@@ -9,7 +9,7 @@
 #include "memlayout.h"
 
 int main(/*int argc, char ** argv8*/){
-    int i, z;
+    int i;
     int begin = getpid();
     int pid = fork();
     if(pid > 0){
@@ -25,28 +25,21 @@ int main(/*int argc, char ** argv8*/){
             int j = 0;
             if(getpid() == begin+8){
                 printf(1," pid = %d, get higher priority\n\n",getpid());
-                z = setnewpriority(40);
-                if ( z == 40)
-                {
-                    printf(1, "priority set\n");
-                }
-                else if ( z == -1)
-                {
-                    printf(1, "priority set wrong\n");
-                }
-                else 
-                {
-                    printf(1, "priority [%d] fail \n", z);
-                }
+                printf(1," priority of [%d] is %d\n", getpid(), getpriority());
+                setnewpriority(40);
+                printf(1," new priority of [%d] is %d\n", getpid(), getpriority());
                 
             }
             while(j++ < 30000000);
+            //printf(1, "after while(j++ < 3000000)\n",0);
             exit(0);
         }
     }else if(pid == 0){
-       // sleep(100);
+        sleep(100);
         int j = 0;
         while(j++ < 30000000);
+        //printf(1, "after secon while(j++ < 3000000)\n",0);
+
         exit(0);
     }
     
@@ -55,10 +48,14 @@ int main(/*int argc, char ** argv8*/){
     int status;
     while(ki >= 0){
         ki = wait(&status);
-        if(ki == begin+8)
+        if(ki == begin+8){
             printf(1," [%d] I should be done first\n",ki);
-        else
+            printf(1," priority %d\n", getpriority());
+		}
+        else{
             printf(1," [%d] done runing\n",ki);
+            printf(1," priority %d\n", getpriority());
+		}
     }
     exit(0);
     return 0;

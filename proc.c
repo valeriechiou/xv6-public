@@ -6,6 +6,7 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
@@ -48,7 +49,6 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
-
   release(&ptable.lock);
 
   // Allocate kernel stack.
@@ -71,7 +71,8 @@ found:
   p->context = (struct context*)sp;
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
-  p->priority = 30; //default priority number
+  
+  p->priority = 0; //default priority number
   
   return p;
 }
@@ -219,22 +220,22 @@ exit(int status)
   //   proc->procwaitlist_size--;
   //   wakeup1(proc->procwaitlist[proc->procwaitlist_size]);
   // }
-  int x;
- 	//cprintf(" exiting: [%d]\n", proc->pid);
-  
-  if ( proc->vec_size != 0 ) {
-  	for ( x = 0; x < proc->vec_size; x++) {
-  	
-    		for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-          
-      			if (p->pid == proc->waitpid_vec[x]) {
-              
-                cprintf(" wait complete: [%d]\n", p->pid);
-        				wakeup1(p);
-      			}
-    		}
-  	}
-  }
+  //~ int x;
+ 	//~ //cprintf(" exiting: [%d]\n", proc->pid);
+  //~ 
+  //~ if ( proc->vec_size != 0 ) {
+  	//~ for ( x = 0; x < proc->vec_size; x++) {
+  	//~ 
+    		//~ for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+          //~ 
+      			//~ if (p->pid == proc->waitpid_vec[x]) {
+              //~ 
+                //~ cprintf(" wait complete: [%d]\n", p->pid);
+        				//~ wakeup1(p);
+      			//~ }
+    		//~ }
+  	//~ }
+  //~ }
   //cprintf(" exiting2: [%d]\n", proc->pid);
   // Pass abandoned children to init.
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
@@ -363,22 +364,21 @@ void
 scheduler(void)
 {
   struct proc *p;
-  //int priority = 0;
+  int priority = 0;
   
   for(;;){
     // Enable interrupts on this processor.
     sti();
     acquire(&ptable.lock);
 
-    // for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
-    // {
-    //   if(p->state != RUNNABLE) continue;
+     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+     {
+       if(p->state != RUNNABLE) continue;
       
-    //   if(priority < p->priority) 
-    //   {
-    //     priority = p->priority;
-    //   }
-    // }
+       if(priority < p->priority) {
+         priority = p->priority;
+       }
+     }
 
     //Currently working process
     
@@ -388,14 +388,8 @@ scheduler(void)
       if(p->state != RUNNABLE)
         continue;
       
-    //   if(priority < p->priority) 
-    //   {
-    //     //priority = p->priority;
-    //     continue;
-    //   }
-    //    if(p->priority < priority)
-    //     continue;
-      
+		if(p->priority < priority) continue;
+		if(p->priority > priority) break;
       
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
@@ -427,6 +421,10 @@ int setnewpriority(int new_priority){
   
   release(&ptable.lock);
   return new_priority;
+}
+
+int getpriority(void){
+	return (int)proc->priority;
 }
 
 // Enter scheduler.  Must hold only ptable.lock
