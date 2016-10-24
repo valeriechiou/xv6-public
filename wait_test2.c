@@ -25,18 +25,18 @@ int main(int argc, char ** argv){
 		pid2 =fork();
 		pid2 =fork();
 		x = getpid();
-		y = getpri();
+		y = getpriority();
 		printf(1,"wait [%d] and pri [%d]\n",	x, y);
 		if (pid2 != 0)
 		{
-			a = setnewpriority(10);
+			a = change_priority(10);
 		}
 		
 		// y = getpri();
 		// printf(1,"process [%d] new pri [%d]\n",	x, y);
 		
 		waitpid(pid1, &status, 0);
-		y = getpri();
+		y = getpriority();
 		printf(1,"finnally [%d] and pri [%d]\n",	x, y);
 		
 		

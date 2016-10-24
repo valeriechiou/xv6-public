@@ -70,8 +70,8 @@ found:
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
 
-  p->priority = 50; //default priority value
-
+  p->priority = 0; //default priority value
+  p->base_priority = 0;
   return p;
 }
 
@@ -183,85 +183,39 @@ exit(int status)
       proc->ofile[fd] = 0;
     }
   }
-  
-  
-
-
+  begin_op();
   iput(proc->cwd);
-
+  end_op();
   proc->cwd = 0;
-
   acquire(&ptable.lock);
-
   // Parent might be sleeping in wait().
   wakeup1(proc->parent);
-
-
-  int x;
-  //cprintf(" I: [%d] am the child of [%d]\n", proc->pid,proc->parent->pid);
- 	
-  
-  //cprintf(" exiting: [%d]\n", proc->pid);
-  
-  if ( proc->vec_size != 0 ) {
-  	for ( x = 0; x < proc->vec_size; x++) {
-  	
-    		for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-          
-      			if (p->pid == proc->waitpid_vec[x]) {
-              
-                cprintf(" wait complete: [%d] with priority [%d]\n"
-                  , p->pid, p->priority);
-                
-
-                
-        				wakeup1(p);
-                
-                
-                // struct proc *k;
-                // for(k = ptable.proc; k < &ptable.proc[NPROC]; k++)
-                //   {
-                //     {
-                //       if (k->priority != 0)
-                //       cprintf(" [%d] : ", k->priority);
-                      
-                //     }
-                //   }
-                // cprintf(" \n ");
-      			}
-    		}
+  // If there are any processes waiting in this one's wait array, it will search
+  // the process table and wake them up
+  int x;  
+  if(proc->procarr_size != 0){
+  	for(x = 0; x < proc->procarr_size; x++){
+		for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+			if(p->pid == proc->procarr[x]){
+				wakeup1(p);
+      		}
+    	}
   	}
   }
-  
-  
-  
-                //   struct proc *k;
-                // for(k = ptable.proc; k < &ptable.proc[NPROC]; k++)
-                //   {
-                //     {
-                //       if (k->priority != 0)
-                //       cprintf(" [%d] : ", k->priority);
-                      
-                //     }
-                //   }
-                // cprintf(" \n ");
-  //cprintf(" exiting2: [%d]\n", proc->pid);
+
   // Pass abandoned children to init.
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-  if(p->parent == proc){
-  p->parent = initproc;
-  if(p->state == ZOMBIE)
-  wakeup1(initproc);
+	if(p->parent == proc){
+		p->parent = initproc;
+		if(p->state == ZOMBIE)
+			wakeup1(initproc);
+	}
   }
-  }
-  
-  //cprintf(" done abandoning my children: [%d]\n", proc->pid);
   
   // Jump into the scheduler, never to return.
   proc->priority = 0;
   proc->state = ZOMBIE;
   
-  //cprintf(" turned into zombie: [%d]\n", proc->pid);
   sched();
   panic("zombie exit");
 }
@@ -276,25 +230,20 @@ waitpid(int pid, int* status, int options){
     // Scan through table looking for exited children.
     havekids = 0;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-      if(p->pid != pid)
-        continue;
-      
+      if(p->pid != pid)                     // find process with pid in ptable
+        continue;                           // and add proc to that process's
+                                            // wait array
       havekids = 1;
       
-      if( p->vec_size < sizeof(p->waitpid_vec) ) { 
-          p->waitpid_vec[p->vec_size] = proc->pid;
-          p->vec_size ++;
-          
-          //cprintf(" adding [%d] to wait for[%d]\n", proc->pid, p->pid);
-
-
-       }
+      if(p->procarr_size < sizeof(p->procarr)){     // if there is room in the 
+          p->procarr[p->procarr_size] = proc->pid;  // wait array, add the proc
+          p->procarr_size++;                        // to the pid process's
+      }                                             // wait array
       
       if(p->state == ZOMBIE){
         // Found one.
         
         temp_pid = p->pid;
-        // pid = p->pid;
         kfree(p->kstack);
         p->kstack = 0;
         freevm(p->pgdir);
@@ -303,9 +252,11 @@ waitpid(int pid, int* status, int options){
         p->name[0] = 0;
         p->killed = 0;
         p->state = UNUSED;
-        if(status){*status = p->exit_stat;} //CHANGE
+        if(status){
+			*status = p->exit_stat;
+		}
         release(&ptable.lock);
-	       return temp_pid;
+	    return temp_pid;
       }
       
       
@@ -324,6 +275,7 @@ waitpid(int pid, int* status, int options){
 
 // Wait for a child process to exit and return its pid.
 // Return -1 if this process has no children.
+
 int
 wait(int *status)
 {
@@ -349,15 +301,19 @@ wait(int *status)
         p->name[0] = 0;
         p->killed = 0;
         p->state = UNUSED;
-        if(status){*status = p->exit_stat;} //CHANGE
+        if(status){
+			     *status = p->exit_stat;
+		    } 
 	       release(&ptable.lock);       
 	       return pid;
-        } 
-    }
+     } 
+   }
     // No point waiting if we don't have any children.
     if(!havekids || proc->killed){
       release(&ptable.lock);
-      if(status){*status = -1;}
+      if(status){
+		  *status = -1;
+	    }
       return -1;
     }
     
@@ -378,78 +334,38 @@ void
 scheduler(void)
 {
   struct proc *p;
-  int priority = 0;
+  int max_priority = 0;
   
-  for(;;) {
-    
-    priority = 0;
-    
-    
+  for(;;) {  
+    max_priority = 0;
     // Enable interrupts on this processor.
-
-    
     sti();
-    
-    
-    
     acquire(&ptable.lock);
 
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
-    {
-            
-      // if (p->priority != 0)
-      // {
-      //   cprintf(" not equal to zerooo [%d]\n", p->priority);
-      //   if(p->state != RUNNABLE)
-      //     cprintf(" not runnable [%d]\n", p->priority);
-      //   else
-      //     cprintf("  runnable [%d]\n", p->priority);
-      // }
-      if(p->state != RUNNABLE) continue;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->state != RUNNABLE) 
+		  continue;
       
-      if(priority < p->priority) 
-      {
-        
-        priority = p->priority;
-         //cprintf(" new max priority [%d]\n", priority);
-        
-      }
+      if(max_priority < p->priority) 
+        max_priority = p->priority;               
       
-      // if(p->state != RUNNABLE) continue;
     }
 
-
-    //cprintf(" this max priority for this round it [%d]\n\n", priority);
     //Currently working process
     
     // Loop over process table looking for process to run.
         
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      
       if(p->state != RUNNABLE)
         continue;
       
-      if(priority < p->priority) 
+      if(max_priority < p->priority) 
       {
-        priority = p->priority;
+        max_priority = p->priority;
         break;
-
       }
-      if(p->priority < priority)
+      if(p->priority < max_priority)
         continue;
-      
-      // if(priority == -1)
-      // {
-      //   if(p->state != RUNNABLE)
-      //   continue;
-      // }
-      // else if(p->priority != priority || p->state != RUNNABLE)
-      //   continue;
-      
-      
-      //cprintf(" CURRENTLY RUNNING [%d]\n", p->pid);
-      
-      
       
       
       // Switch to chosen process.  It is the process's job
@@ -472,31 +388,17 @@ scheduler(void)
   }
 }
 
-
-
-
-
-
-
-int setnewpriority(int new_priority){
-  
+int change_priority(int new_priority){
   acquire(&ptable.lock); 
   
   if(new_priority < 0 || new_priority > 63)
     return -1; 
-  
-  // cprintf(" new_priority [%d]\n", new_priority);
-  // cprintf(" set new_priority [%d]\n", new_priority);
-  
-  
+  proc->base_priority = new_priority; 
   proc->priority = new_priority;
   proc->state = RUNNABLE;
   
-  release(&ptable.lock);
-  
-  //cprintf(" returning [%d]\n\n", proc->priority);
-  
-  
+  release(&ptable.lock);  
+
   return new_priority;
 }
 
@@ -686,4 +588,36 @@ procdump(void)
     cprintf("\n");
   }
 }
+
+
+void
+give_priority(struct proc *p)
+{
+  acquire(&ptable.lock);
+  
+  if(proc->priority > p->priority) {
+    
+    p->priority = proc->priority;
+    
+  }
+  
+  release(&ptable.lock);
+}
+
+
+void
+take_priority()
+{
+    acquire(&ptable.lock);
+    
+    if (proc->priority != proc->base_priority) {
+
+      proc->priority = proc->base_priority;
+      
+    }
+    
+    release(&ptable.lock);
+}
+
+
 
