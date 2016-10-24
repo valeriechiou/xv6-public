@@ -118,8 +118,12 @@ int             wait(int *status);
 int             waitpid(int pid, int *status, int options);
 void            wakeup(void*);
 void            yield(void);
+<<<<<<< HEAD
 void            give_priority(struct proc *p);
 void            take_priority();
+=======
+
+>>>>>>> 75e14ed7593d282b8301326b1d8feac18d6cf9b6
 
 // swtch.S
 void            swtch(struct context**, struct context*);

@@ -42,8 +42,13 @@ sys_waitpid(){
   return 0;
 }
 
+<<<<<<< HEAD
 int                             //this is the syscall for the change_priority
 sys_change_priority(void){      // function
+=======
+int
+sys_change_priority(void){
+>>>>>>> 75e14ed7593d282b8301326b1d8feac18d6cf9b6
   int priority;
   argint(0, &priority);
   change_priority(priority);

@@ -67,7 +67,11 @@ struct proc {
   int procarr[50];				// waitpid process array
   int procarr_size;				// waitpid procarr size
   int priority;					// Priority number
+<<<<<<< HEAD
   int base_priority;      //base priority
+=======
+
+>>>>>>> 75e14ed7593d282b8301326b1d8feac18d6cf9b6
 };
 
 // Process memory is laid out contiguously, low addresses first:
