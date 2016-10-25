@@ -183,24 +183,15 @@ exit(int status)
       proc->ofile[fd] = 0;
     }
   }
-<<<<<<< HEAD
   begin_op();
   iput(proc->cwd);
   end_op();
-=======
-  
-  iput(proc->cwd);
->>>>>>> 75e14ed7593d282b8301326b1d8feac18d6cf9b6
   proc->cwd = 0;
   acquire(&ptable.lock);
   // Parent might be sleeping in wait().
   wakeup1(proc->parent);
-<<<<<<< HEAD
   // If there are any processes waiting in this one's wait array, it will search
   // the process table and wake them up
-=======
-
->>>>>>> 75e14ed7593d282b8301326b1d8feac18d6cf9b6
   int x;  
   if(proc->procarr_size != 0){
   	for(x = 0; x < proc->procarr_size; x++){
@@ -221,10 +212,6 @@ exit(int status)
 	}
   }
   
-<<<<<<< HEAD
-=======
-  
->>>>>>> 75e14ed7593d282b8301326b1d8feac18d6cf9b6
   // Jump into the scheduler, never to return.
   proc->priority = 0;
   proc->state = ZOMBIE;
@@ -248,17 +235,10 @@ waitpid(int pid, int* status, int options){
                                             // wait array
       havekids = 1;
       
-<<<<<<< HEAD
       if(p->procarr_size < sizeof(p->procarr)){     // if there is room in the 
           p->procarr[p->procarr_size] = proc->pid;  // wait array, add the proc
           p->procarr_size++;                        // to the pid process's
       }                                             // wait array
-=======
-      if(p->procarr_size < sizeof(p->procarr)){ 
-          p->procarr[p->procarr_size] = proc->pid;
-          p->procarr_size++;
-      }
->>>>>>> 75e14ed7593d282b8301326b1d8feac18d6cf9b6
       
       if(p->state == ZOMBIE){
         // Found one.
@@ -322,17 +302,10 @@ wait(int *status)
         p->killed = 0;
         p->state = UNUSED;
         if(status){
-<<<<<<< HEAD
 			     *status = p->exit_stat;
 		    } 
 	       release(&ptable.lock);       
 	       return pid;
-=======
-			*status = p->exit_stat;
-		} 
-	    release(&ptable.lock);       
-	    return pid;
->>>>>>> 75e14ed7593d282b8301326b1d8feac18d6cf9b6
      } 
    }
     // No point waiting if we don't have any children.
@@ -340,11 +313,7 @@ wait(int *status)
       release(&ptable.lock);
       if(status){
 		  *status = -1;
-<<<<<<< HEAD
 	    }
-=======
-	  }
->>>>>>> 75e14ed7593d282b8301326b1d8feac18d6cf9b6
       return -1;
     }
     
@@ -375,11 +344,7 @@ scheduler(void)
 
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != RUNNABLE) 
-<<<<<<< HEAD
 		  continue;
-=======
-		continue;
->>>>>>> 75e14ed7593d282b8301326b1d8feac18d6cf9b6
       
       if(max_priority < p->priority) 
         max_priority = p->priority;               
@@ -428,11 +393,7 @@ int change_priority(int new_priority){
   
   if(new_priority < 0 || new_priority > 63)
     return -1; 
-<<<<<<< HEAD
   proc->base_priority = new_priority; 
-=======
-    
->>>>>>> 75e14ed7593d282b8301326b1d8feac18d6cf9b6
   proc->priority = new_priority;
   proc->state = RUNNABLE;
   
